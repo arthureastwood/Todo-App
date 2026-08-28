@@ -1,0 +1,70 @@
+@font-face {
+    font-family: 'Norse-Bold';
+    src: url('./fonts/Norse-Bold.otf') format('opentype');
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Sixty-Four';
+    src: url('./fonts/Sixtyfour/Sixtyfour-Regular-VariableFont_BLED\,SCAN.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+}
+
+:root {
+    --primary-clr: #5b7dad;
+    --text-color: #243447;
+    --secondary-clr: #ffffff;
+    --medium-clr: #ffa600;
+    --low-clr: #28b80c;
+    --high-clr: #f11515;
+    --sidebar-clr: #50043d;
+    --form-gap: 10px;
+}
+
+body {
+    font-family: "Norse-Bold";
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+#app-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+}
+
+.side-bar {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+    gap: 1rem;
+    color: var(--secondary-clr);
+    background-color: var(--sidebar-clr);
+}
+
+.main-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: var(--primary-clr);
+}
+
+.hidden {
+    display: none;
+}
+
+#new-project-btn, #new-todo-btn {
+    border: none;
+    font-family: 'Norse-Bold';
+    font-size: 13px;
+    padding: 3.5px;
+    width: 25%;
+    background-color: var(--medium-clr);
+    cursor: pointer;
+    border-radius: 6px;
+}
