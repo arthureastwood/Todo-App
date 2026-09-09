@@ -1,8 +1,9 @@
 import { format } from 'date-fns';
+import { Todo } from './todo.js';
+import { Project } from './project.js';
 
 export class DisplayController{
-    constructor(logic){
-        this.logic = logic;
+    constructor(){
         this.projectList = document.getElementById('project-list');
         this.newProjectBtn = document.getElementById('new-project-btn');
         this.todoList = document.getElementById('todo-list');
@@ -33,32 +34,39 @@ export class DisplayController{
         this.activeTodo = null;
     }
 
+    init(){
+        this.initEventListeners();
+        this.renderProjects();
+        this.renderTodos();
+    }
+
     renderProjects(){
+        const projectController = new Project();
         this.projectList.innerHTML = '';
-        this.logic.getProjects().forEach((project,index) => {
+        this.projectController.getTodos().forEach((project,index) => {
             const li = document.createElement('li');
             li.classList.add('project-item');
-            if(index === this.logic.currentProjectIndex){
+            if(index === this.projectController.currentProjectIndex){
                 li.classList.add('active');
             }
 
             const label = document.createElement('span');
-            label.textContent = project.name;
+            label.textContent = projectController.getCurrentProject.name;
             label.addEventListener('click', () => {
-                this.logic.setCurrentProject(index);
+                this.projectController.setCurrentProject(index);
                 this.renderProjects();
                 this.renderTodos();
             });
 
             li.appendChild(label);
 
-            if(project.name !== 'Default'){
+            if(projectController.getCurrentProject.name !== 'Default'){
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'x';
                 deleteBtn.classList.add('delete-project-btn');
                 deleteBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    this.logic.deleteProject(project.id);
+                    this.projectController.deleteProject(project.id);
                     this.renderProjects();
                     this.renderTodos();
                 });
@@ -69,11 +77,12 @@ export class DisplayController{
     }
 
     renderTodos(){
-        const project = this.logic.getCurrentProject();
-        this.currentProjectTitle.textContent = project.name;
+        const todoController = new Todo();
+        this.projectController.getCurrentProject();
+        this.currentProjectTitle.textContent = projectController.getCurrentProject.name;
         this.todoList.innerHTML = '';
 
-        project.getTodos().forEach((todo) => {
+        todoController.getTodos().forEach((todo) => {
             const li = document.createElement('li');
             li.classList.add('todo-item', `priority-${todo.priority.toLowerCase()}`);
             if(todo.checklist){
@@ -84,7 +93,7 @@ export class DisplayController{
             checkbox.type = 'checkbox';
             checkbox.checked = todo.checklist;
             checkbox.addEventListener('change', () => {
-                this.logic.toggleTodoComplete(todo.id);
+                this.todoController.toggleComplete(todo.id);
                 this.renderTodos();
             });
 
@@ -117,18 +126,17 @@ export class DisplayController{
     initEventListeners(){
         this.newProjectBtn.addEventListener('click', () => {
             this.newProjectForm.classList.remove('hidden');
-            this.newProjectForm.showModal();
+            this.newProjectFormContainer.showModal();
         });
 
         this.newTodoBtn.addEventListener('click', () => {
-            this.activeTodo = null;
-            this.todoModal.showModal();
-            this.addTodoForm.reset();  
+            this.todoModal.classList.toggle('hidden');
+            this.todoModal.showModal();  
         });
 
         this.cancelProjectBtn.addEventListener('click', () => {
             this.projectTitleInput.value = '';
-            this.newProjectForm.classList.add('hidden');
+            this.newProjectFormContainer.close();
         });
 
         this.addProjectBtn.addEventListener('click', () => {
@@ -161,9 +169,9 @@ export class DisplayController{
             }
 
             if(this.activeTodo){
-                this.logic.updateTodo(this.activeTodo.id, todoData);
+                this.todoController.updateTodo(this.activeTodo.id, todoData);
             } else{
-                this.logic.addTodo(todoData);
+                this.todoController.addTodo(todoData);
             }
 
             this.addTodoForm.reset();
@@ -194,16 +202,10 @@ export class DisplayController{
                 return;
             }
 
-            this.logic.deleteTodo(this.activeTodo.id);
+            this.todoController.deleteTodo(this.activeTodo.id);
             this.todoDetailsModal.classList.add('hidden');
             this.renderTodos();
         });
-    }
-
-    init(){
-        this.renderProjects();
-        this.renderTodos();
-        this.initEventListeners();
     }
 
     showTodoDetails(todo){

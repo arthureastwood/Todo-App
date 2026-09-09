@@ -61,10 +61,75 @@ body {
 #new-project-btn, #new-todo-btn {
     border: none;
     font-family: 'Norse-Bold';
-    font-size: 13px;
+    font-size: 1rem;
     padding: 3.5px;
-    width: 25%;
+    width: 100px;
     background-color: var(--medium-clr);
+    color: var(--secondary-clr);
     cursor: pointer;
     border-radius: 6px;
+    display: block;
+    margin: 5px auto;
+}
+
+#new-project-form-container {
+    border: none;
+    border-radius: 6px;
+    padding: 40px;
+}
+
+#new-project-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#add-project-btn, #cancel-project-btn {
+    cursor: pointer;
+    border-radius: 4px;
+    border: none;
+    padding: 7px;
+}
+
+#todo-modal {
+    position: relative;
+    width: 250px;
+    border: none;
+    border-radius: 6px;
+    padding: 32px;
+    padding-top: 40px;
+    border: 1px solid #7be266;
+}
+
+#add-todo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#close-dialog {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+#close-dialog:hover {
+    background: rgba(133, 129, 129, 0.63);
+}
+
+#add-todo-btn {
+    cursor: pointer;
+    width: 100px;
+    display: block;
+    margin: 0 auto;
+    background-color: var(--low-clr);
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
 }

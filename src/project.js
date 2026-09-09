@@ -1,19 +1,28 @@
 export class Project{
     constructor(name){
         this.name = name;
-        this.todos = [];
-        this.id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
+        this.id = crypto.randomUUID();
+        this.projects = [];
+        this.currentProjectIndex = 0;
     }
 
-    addTodo(todo){
-        this.todos.push(todo);
+    addProject(){
+        
     }
 
-    removeTodo(todoId){
-        this.todos = this.todos.filter(todo => todo.id !== todoId);
+    getCurrentProject(){
+
+    }
+
+    deleteProject(todo, id){
+        
     }
 
     getTodos(){
-        return this.todos;
+
+    }
+
+    setCurrentProject(index){
+
     }
 }
