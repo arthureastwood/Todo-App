@@ -11,27 +11,33 @@
             <h2>Projects</h2>
             <ul id="project-list"></ul>
             <button id="new-project-btn">New Project</button>
-            <dialog id="new-project-form-container">
-                <div id="new-project-form-content" class='hidden'>
-                    <input type="text" id="project-title-input" placeholder="New Project Title" required>
-                    <button id="add-project-btn">Add</button>
-                    <button id="cancel-project-btn">Cancel</button>
-                </div>
-            </dialog>
         </aside>
         <main class="main-content">
-            <div class="main-header">
-                <h2 id="current-project-title">Default</h2>
-            </div>
+            <h2 id="current-project-title">Default</h2>
             <button id="new-todo-btn">New Todo</button>
             <ul id="todo-list"></ul>
         </main>
     </div>
 
+    <!-- Dialogs and modals -->
+
+     <!-- 1. Project form dialog wrapper -->
+    <dialog id="new-project-form-container">
+        <form id="new-project-form-content" class='hidden' method="dialog">
+            <label for="project-title-input">Project Title:</label>
+            <input type="text" id="project-title-input" placeholder="New Project Title" required>
+            <div class="form-actions">
+                <button type="button" id="add-project-btn">Add</button>
+                <button type="button" id="cancel-project-btn">Cancel</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- 2. Todo creation dialog wrapper -->
     <dialog id="todo-modal" class='hidden'>
         <form id="add-todo-form">
             <input type="text" name="todo-title" id="todo-title" placeholder="Task Title" required>
-            <input type="text" name="todo-description" id="todo-description" placeholder="Description">
+            <textarea name="todo-description" id="todo-description" placeholder="Description"></textarea>
             <input type="date" name="todo-date" id="todo-date" required>
             <select name="todo-priority" id="todo-priority">
                 <option value="Low">Low</option>
@@ -44,17 +50,16 @@
         <button id="close-dialog" type="button">x</button>
     </dialog>
 
+    <!-- 3. Todo detail modal -->
     <div id="todo-details-modal" class='hidden'>
-        <div class="modal-content">
-            <span id="close-details-btn">&times;</span>
-            <h2 id="details-title"></h2>
-            <p><strong>Description:</strong> <span id="details-description"></span></p>
-            <p><strong>Due Date:</strong> <span id="details-dueDate"></span></p>
-            <p><strong>Priority:</strong> <span id="details-priority"></span></p>
-            <p><strong>Notes:</strong> <span id="details-notes"></span></p>
-            <button id="edit-todo-btn" type="button">Edit</button>
-            <button id="delete-todo-btn" type="button">Delete</button>
-        </div>
+        <h2 id="details-title"></h2>
+        <p><strong>Description:</strong> <span id="details-description"></span></p>
+        <p><strong>Due Date:</strong> <span id="details-dueDate"></span></p>
+        <p><strong>Priority:</strong> <span id="details-priority"></span></p>
+        <p><strong>Notes:</strong> <span id="details-notes"></span></p>
+        <button id="edit-todo-btn">Edit</button>
+        <button id="delete-todo-btn">Delete</button>
+        <button id="close-details-btn">x</button>
     </div>
 </body>
 </html>

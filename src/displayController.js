@@ -1,13 +1,16 @@
-import { format } from 'date-fns';
-import { Todo } from './todo.js';
-import { Project } from './project.js';
+import { format, parseISO } from 'date-fns';
+import { TodoApp } from './appLogic.js';
 
 export class DisplayController{
     constructor(){
+        this.projectController = new TodoApp();
+
+        //DOM elements
         this.projectList = document.getElementById('project-list');
         this.newProjectBtn = document.getElementById('new-project-btn');
         this.todoList = document.getElementById('todo-list');
         this.newTodoBtn = document.getElementById('new-todo-btn');
+        this.currentProjectTitle = document.getElementById('current-project-title');
         this.newProjectFormContainer = document.getElementById('new-project-form-container')
         this.newProjectForm = document.getElementById('new-project-form-content');
         this.projectTitleInput = document.getElementById('project-title-input');
@@ -41,9 +44,8 @@ export class DisplayController{
     }
 
     renderProjects(){
-        const projectController = new Project();
         this.projectList.innerHTML = '';
-        this.projectController.getTodos().forEach((project,index) => {
+        this.projectController.getProjects().forEach((project,index) => {
             const li = document.createElement('li');
             li.classList.add('project-item');
             if(index === this.projectController.currentProjectIndex){
@@ -51,8 +53,8 @@ export class DisplayController{
             }
 
             const label = document.createElement('span');
-            label.textContent = projectController.getCurrentProject.name;
-            label.addEventListener('click', () => {
+            label.textContent = project.name;
+            li.addEventListener('click', () => {
                 this.projectController.setCurrentProject(index);
                 this.renderProjects();
                 this.renderTodos();
@@ -60,7 +62,7 @@ export class DisplayController{
 
             li.appendChild(label);
 
-            if(projectController.getCurrentProject.name !== 'Default'){
+            if(project.name !== 'Default'){
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'x';
                 deleteBtn.classList.add('delete-project-btn');
@@ -77,12 +79,14 @@ export class DisplayController{
     }
 
     renderTodos(){
-        const todoController = new Todo();
-        this.projectController.getCurrentProject();
-        this.currentProjectTitle.textContent = projectController.getCurrentProject.name;
+        const currentProject = this.projectController.getCurrentProject();
+        this.currentProjectTitle = this.currentProjectTitle;
+        if(this.currentProjectTitle){
+            this.currentProjectTitle.textContent = currentProject.name;
+        }
         this.todoList.innerHTML = '';
 
-        todoController.getTodos().forEach((todo) => {
+        currentProject.getTodos().forEach((todo) => {
             const li = document.createElement('li');
             li.classList.add('todo-item', `priority-${todo.priority.toLowerCase()}`);
             if(todo.checklist){
@@ -93,7 +97,7 @@ export class DisplayController{
             checkbox.type = 'checkbox';
             checkbox.checked = todo.checklist;
             checkbox.addEventListener('change', () => {
-                this.todoController.toggleComplete(todo.id);
+                this.projectController.toggleTodoComplete(todo.id);
                 this.renderTodos();
             });
 
@@ -106,15 +110,27 @@ export class DisplayController{
 
             const date = document.createElement('span');
             date.classList.add('todo-date');
-            date.textContent = format(new Date(todo.dueDate), 'MMM dd yyyy');
+            date.textContent = format(parseISO(todo.dueDate), 'MMM dd yyyy');
 
             todoInfo.appendChild(title);
             todoInfo.appendChild(date);
+
+            const inlineDeleteBtn = document.createElement('button');
+            inlineDeleteBtn.innerHTML = '&#128465;';
+            inlineDeleteBtn.classList.add('inline-delete-todo-btn');
+
+            inlineDeleteBtn.addEventListener('click', (e)=> {
+                e.stopPropagation();
+                this.projectController.deleteTodo(todo.id);
+                this.renderTodos();
+            });
+
             li.appendChild(checkbox);
             li.appendChild(todoInfo);
+            li.appendChild(inlineDeleteBtn);
 
             li.addEventListener('click', (e) => {
-                if(e.target.tagName !== 'INPUT'){
+                if(e.target.tagName !== 'INPUT' && !e.target.classList.contains('inline-delete-todo-btn')){
                     this.showTodoDetails(todo);
                 }
             });
@@ -130,7 +146,7 @@ export class DisplayController{
         });
 
         this.newTodoBtn.addEventListener('click', () => {
-            this.todoModal.classList.toggle('hidden');
+            this.todoModal.classList.remove('hidden');
             this.todoModal.showModal();  
         });
 
@@ -139,11 +155,17 @@ export class DisplayController{
             this.newProjectFormContainer.close();
         });
 
+        this.newProjectForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+        });
+
         this.addProjectBtn.addEventListener('click', () => {
             const name = this.projectTitleInput.value.trim();
             if(name){
-                this.logic.addProject(name);
+                this.projectController.addProject(name);
                 this.projectTitleInput.value = '';
+                this.newProjectFormContainer.close();
                 this.newProjectForm.classList.add('hidden');
                 this.renderProjects();
             }
@@ -169,18 +191,21 @@ export class DisplayController{
             }
 
             if(this.activeTodo){
-                this.todoController.updateTodo(this.activeTodo.id, todoData);
+                this.projectController.updateTodo(this.activeTodo.id, todoData);
             } else{
-                this.todoController.addTodo(todoData);
+                this.projectController.addTodo(todoData);
             }
 
             this.addTodoForm.reset();
             this.todoModal.close();
+            this.todoModal.classList.add('hidden');
+            this.activeTodo = null;
             this.renderTodos();
         });
 
         this.closeDetailsModalBtn.addEventListener('click', () => {
             this.todoDetailsModal.classList.add('hidden');
+            this.activeTodo = null;
         });
 
         this.editTodoBtn.addEventListener('click', () => {
@@ -189,12 +214,14 @@ export class DisplayController{
             }
 
             this.todoDetailsModal.classList.add('hidden');
-            this.addTodoForm.elements['todo-title'].value = this.activeTodo.title;
-            this.addTodoForm.elements['todo-description'].value = this.activeTodo.description;
-            this.addTodoForm.elements['todo-date'].value = this.activeTodo.dueDate;
-            this.addTodoForm.elements['todo-priority'].value = this.activeTodo.priority;
-            this.addTodoForm.elements['todo-notes'].value = this.activeTodo.notes;
+            this.todoModal.classList.remove('hidden');
             this.todoModal.showModal();
+            this.todoTitleInput.value = this.activeTodo.title;
+            this.todoDescriptionInput.value = this.activeTodo.description;
+            this.todoDateInput.value = this.activeTodo.dueDate;
+            this.todoPriorityInput.value = this.activeTodo.priority;
+            this.todoTextInput.value = this.activeTodo.notes;
+            
         });
 
         this.deleteTodoBtn.addEventListener('click', () => {
@@ -202,7 +229,7 @@ export class DisplayController{
                 return;
             }
 
-            this.todoController.deleteTodo(this.activeTodo.id);
+            this.projectController.deleteTodo(this.activeTodo.id);
             this.todoDetailsModal.classList.add('hidden');
             this.renderTodos();
         });
@@ -210,11 +237,29 @@ export class DisplayController{
 
     showTodoDetails(todo){
         this.activeTodo = todo;
-        this.detailsTitle.textContent = todo.title;
-        this.detailsDescription.textContent = todo.description || 'No description';
-        this.detailsDueDate.textContent = format(new Date(todo.dueDate), 'MMM do, yyyy');
-        this.detailsPriority.textContent = todo.priority;
-        this.detailsNotes.textContent = todo.notes || 'No notes';
+        if(this.detailsTitle){
+            this.detailsTitle.textContent = todo.title;
+        }
+        if(this.detailsDescription){
+            this.detailsDescription.textContent = todo.description || 'No description';
+        }
+        if(this.detailsPriority){
+            this.detailsPriority.textContent = todo.priority;
+        }
+        if(this.detailsNotes){
+            this.detailsNotes.textContent = todo.notes || 'No notes';
+        }
+        
+
+        if(this.detailsDueDate && todo.dueDate){
+            try{
+                this.detailsDueDate.textContent = format(parseISO(todo.dueDate), 'MMM dd, yyyy');
+            } catch (e) {
+                this.detailsDueDate.textContent = todo.dueDate;
+            }
+            
+        }
+
         this.todoDetailsModal.classList.remove('hidden');
     }
 }

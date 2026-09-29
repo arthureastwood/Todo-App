@@ -2,27 +2,18 @@ export class Project{
     constructor(name){
         this.name = name;
         this.id = crypto.randomUUID();
-        this.projects = [];
-        this.currentProjectIndex = 0;
+        this.todos = [];
     }
 
-    addProject(){
-        
+    addTodo(todo){
+        this.todos.push(todo);
     }
 
-    getCurrentProject(){
-
-    }
-
-    deleteProject(todo, id){
-        
+    deleteTodo(todoId){
+        this.todos = this.todos.filter(todo => todo.id !== todoId);
     }
 
     getTodos(){
-
-    }
-
-    setCurrentProject(index){
-
+        return this.todos;
     }
 }

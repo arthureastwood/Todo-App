@@ -75,7 +75,7 @@ export class TodoApp{
             todoData.checklist || false,
         );
 
-        project.addTodo(todo);
+        project.todos.push(todo);
         this.save();
         return todo;
     }
@@ -92,8 +92,10 @@ export class TodoApp{
 
     deleteTodo(todoId){
         const project = this.getCurrentProject();
-        project.removeTodo(todoId);
-        this.save();
+        if(project){
+            project.todos = project.todos.filter((todo) => todo.id !== todoId);
+            this.save();
+        }
     }
 
     updateTodo(todoId, todoData){
@@ -102,7 +104,7 @@ export class TodoApp{
             return null;
         }
 
-        todo.update(
+        todo.updateTodo(
             todoData.title,
             todoData.description,
             todoData.dueDate,
